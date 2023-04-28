@@ -6,27 +6,20 @@ namespace SuperSocket.Db.Abp.Server.Controllers;
 [Route("[controller]")]
 public sealed class SessionController : ControllerBase
 {
-    private static readonly string[] Summaries = new[]
-    {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
     private readonly ILogger<SessionController> _logger;
+    private readonly IAsyncSessionContainer _sessionContainer;
 
-    public SessionController(ILogger<SessionController> logger)
+    public SessionController(ILogger<SessionController> logger, IAsyncSessionContainer sessionContainer)
     {
         _logger = logger;
+        _sessionContainer = sessionContainer;
     }
 
-    [HttpGet(Name = "GetWeatherForecast")]
-    public IEnumerable<WeatherForecast> Get()
+    [HttpGet("Count")]
+    public async ValueTask<IActionResult> CountSessionAsync()
     {
-        return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-        {
-            Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            TemperatureC = Random.Shared.Next(-20, 55),
-            Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-        })
-        .ToArray();
+        var count = await _sessionContainer.GetSessionCountAsync();
+
+        return Ok(count);
     }
 }

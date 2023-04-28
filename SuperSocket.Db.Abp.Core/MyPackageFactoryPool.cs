@@ -13,6 +13,11 @@ public sealed class MyPackageFactoryPool : IPackageFactoryPool
 
     #region command inilizetion
 
+    static MyPackageFactoryPool()
+    {
+        LoadAllCommand();
+    }
+
     /// <summary>
     /// 加载所有继承了 MyPackage 的命令
     /// </summary>
@@ -29,11 +34,6 @@ public sealed class MyPackageFactoryPool : IPackageFactoryPool
             if (enumerator.Current != null)
                 CommandTypes.TryAdd(enumerator.Current.GetType(), enumerator.Current.Key);
         }
-    }
-
-    static MyPackageFactoryPool()
-    {
-        LoadAllCommand();
     }
 
     #endregion
