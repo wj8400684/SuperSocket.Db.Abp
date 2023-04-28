@@ -1,9 +1,10 @@
-﻿using SuperSocket.Db.Abp.Core.Extensions;
+﻿using MemoryPack;
 using System.Buffers;
 
 namespace SuperSocket.Db.Abp.Core;
 
-public sealed class RegisterPackage : MyPackage
+[MemoryPackable]
+public sealed partial class RegisterPackage : MyPackage
 {
     public RegisterPackage() : base(MyCommand.Register)
     {
@@ -15,29 +16,18 @@ public sealed class RegisterPackage : MyPackage
 
     public string? Email { get; set; }
 
+    /// <summary>
+    /// 这里可以用一些常用序列化框架如 protobuf messagePack memoryPack 可以切换至 protobuf分支
+    /// </summary>
+    /// <param name="writer"></param>
+    /// <returns></returns>
     public override int Encode(IBufferWriter<byte> writer)
     {
         ArgumentException.ThrowIfNullOrEmpty(Username);
         ArgumentException.ThrowIfNullOrEmpty(Password);
         ArgumentException.ThrowIfNullOrEmpty(Email);
 
-        var length = writer.WriteEncoderString(Username);
-        length += writer.WriteEncoderString(Password);
-        length += writer.WriteEncoderString(Email);
-
-        return length;
-    }
-
-    protected internal override void DecodeBody(ref SequenceReader<byte> reader, object? context)
-    {
-        if (reader.TryReadEncoderString(out var username))
-            Username = username;
-
-        if (reader.TryReadEncoderString(out var password))
-            Password = password;
-
-        if (reader.TryReadEncoderString(out var email))
-            Email = email;
+        return base.Encode(writer);
     }
 
     public override void Dispose()
@@ -49,20 +39,11 @@ public sealed class RegisterPackage : MyPackage
     }
 }
 
-public sealed class RegisterRespPackage : MyRespPackage
+[MemoryPackable]
+public sealed partial class RegisterRespPackage : MyRespPackage
 {
     public RegisterRespPackage() : base(MyCommand.RegisterAck)
     {
-    }
-
-    public override int Encode(IBufferWriter<byte> bufWriter)
-    {
-        return base.Encode(bufWriter);
-    }
-
-    protected internal override void DecodeBody(ref SequenceReader<byte> reader, object? context)
-    {
-        base.DecodeBody(ref reader, context);
     }
 
     public override void Dispose()

@@ -1,4 +1,4 @@
-﻿using SuperSocket.Db.Abp.Core.Extensions;
+﻿using MemoryPack;
 using SuperSocket.ProtoBase;
 using System.Buffers;
 
@@ -16,6 +16,7 @@ public abstract class MyPackage : IKeyedPackageInfo<MyCommand>, IDisposable
         Type = GetType();
     }
 
+    [MemoryPackIgnore]
     public MyCommand Key { get; set; }
 
     public virtual void Initialization(IPackageFactory factory)
@@ -23,9 +24,21 @@ public abstract class MyPackage : IKeyedPackageInfo<MyCommand>, IDisposable
         _packetFactory = factory;
     }
 
-    public abstract int Encode(IBufferWriter<byte> writer);
+    public virtual int Encode(IBufferWriter<byte> bufWriter)
+    {
+        using var state = MemoryPackWriterOptionalStatePool.Rent(MemoryPackSerializerOptions.Utf8);
+        var writer = new MemoryPackWriter<IBufferWriter<byte>>(ref bufWriter, state);
+        writer.WriteValue(Type, this);
+        var writtenCount = writer.WrittenCount;
+        writer.Flush();
 
-    protected internal abstract void DecodeBody(ref SequenceReader<byte> reader, object? context);
+        return writtenCount;
+    }
+
+    protected internal virtual void DecodeBody(ref SequenceReader<byte> reader, object? context)
+    {
+        MemoryPackSerializer.Deserialize(Type, reader.UnreadSequence, ref context);
+    }
 
     public override string ToString()
     {
@@ -49,35 +62,6 @@ public abstract class MyRespPackage : MyPackage
     protected MyRespPackage(MyCommand key)
         : base(key)
     {
-    }
-
-    public override int Encode(IBufferWriter<byte> writer)
-    {
-        var length = writer.Write(SuccessFul ? (byte)1 : (byte)0);
-        length += writer.Write((byte)ErrorCode);
-
-        if (SuccessFul)
-            return length;
-
-        if (!string.IsNullOrWhiteSpace(ErrorMessage))
-            length +=  writer.WriteEncoderString(ErrorMessage);
-
-        return length;
-    }
-
-    protected internal override void DecodeBody(ref SequenceReader<byte> reader, object? context)
-    {
-        reader.TryRead(out var successFul);
-        SuccessFul = successFul == 1;
-
-        reader.TryRead(out var errorCode);
-        ErrorCode = (MyErrorCode)errorCode;
-
-        if (SuccessFul)
-            return;
-
-        reader.TryReadEncoderString(out var errorMessage);
-        ErrorMessage = errorMessage;
     }
 
     public override void Dispose()
