@@ -1,4 +1,5 @@
 ﻿using ProtoBuf;
+using ProtoBuf.Meta;
 using System.Buffers;
 
 namespace SuperSocket.Db.Abp.Core;
@@ -26,9 +27,12 @@ public sealed class LoginPackage : MyPackage
         ArgumentException.ThrowIfNullOrEmpty(Username);
         ArgumentException.ThrowIfNullOrEmpty(Password);
 
-        Serializer.Serialize(writer, this);
+        using var stream = new MemoryStream();
+        Serializer.Serialize(stream, this);
+        var buffer = stream.ToArray();
+        writer.Write(buffer);
 
-        return default;//返回值没啥用处
+        return buffer.Length;
     }
 
     /// <summary>
@@ -50,16 +54,16 @@ public sealed class LoginPackage : MyPackage
 }
 
 [ProtoContract]
-public sealed class LoginRespPackage : MyPackage
+public sealed class LoginRespPackage : MyRespPackage
 {
     [ProtoMember(1)]
-    public bool SuccessFul { get; set; }
+    public override bool SuccessFul { get; set; }
 
     [ProtoMember(2)]
-    public MyErrorCode ErrorCode { get; set; }
+    public override MyErrorCode ErrorCode { get; set; }
 
     [ProtoMember(3)]
-    public string? ErrorMessage { get; set; }
+    public override string? ErrorMessage { get; set; }
 
     public LoginRespPackage() : base(MyCommand.LoginAck)
     {
@@ -67,9 +71,12 @@ public sealed class LoginRespPackage : MyPackage
 
     public override int Encode(IBufferWriter<byte> writer)
     {
-        Serializer.Serialize(writer, this);
+        using var stream = new MemoryStream();
+        Serializer.Serialize(stream, this);
+        var buffer = stream.ToArray();
+        writer.Write(buffer);
 
-        return default;//返回值没啥用处
+        return buffer.Length;
     }
 
     protected internal override void DecodeBody(ref SequenceReader<byte> reader, object? context)

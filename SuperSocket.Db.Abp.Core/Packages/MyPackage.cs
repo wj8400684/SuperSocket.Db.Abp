@@ -1,4 +1,6 @@
-﻿using SuperSocket.ProtoBase;
+﻿using ProtoBuf;
+using SuperSocket.Db.Abp.Core.Extensions;
+using SuperSocket.ProtoBase;
 using System.Buffers;
 
 namespace SuperSocket.Db.Abp.Core;
@@ -34,5 +36,29 @@ public abstract class MyPackage : IKeyedPackageInfo<MyCommand>, IDisposable
     public virtual void Dispose()
     {
         _packetFactory?.Return(this);
+    }
+}
+
+public abstract class MyRespPackage : MyPackage
+{
+    [ProtoMember(1)]
+    public abstract bool SuccessFul { get; set; }
+
+    [ProtoMember(2)]
+    public abstract MyErrorCode ErrorCode { get; set; }
+
+    [ProtoMember(3)]
+    public abstract string? ErrorMessage { get; set; }
+
+    protected MyRespPackage(MyCommand key)
+        : base(key)
+    {
+    }
+
+    public override void Dispose()
+    {
+        SuccessFul = default;
+        ErrorCode = default;
+        ErrorMessage = default;
     }
 }

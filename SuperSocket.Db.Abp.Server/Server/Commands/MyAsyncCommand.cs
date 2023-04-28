@@ -4,7 +4,7 @@ namespace SuperSocket.Db.Abp.Server.Commands;
 
 public abstract class MyAsyncRespCommand<TPackage, TRespPackage> : IAsyncCommand<MyAppSession, MyPackage>
     where TPackage : MyPackage
-    where TRespPackage : MyPackage, new()
+    where TRespPackage : MyRespPackage, new()
 {
     ValueTask IAsyncCommand<MyAppSession, MyPackage>.ExecuteAsync(MyAppSession session, MyPackage package) => SchedulerAsync(session, package, session.ConnectionToken);
 
