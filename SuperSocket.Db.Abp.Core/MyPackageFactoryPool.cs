@@ -2,6 +2,9 @@
 
 namespace SuperSocket.Db.Abp.Core;
 
+/// <summary>
+/// 包工厂池
+/// </summary>
 public sealed class MyPackageFactoryPool : IPackageFactoryPool
 {
     private static readonly Dictionary<Type, MyCommand> CommandTypes = new();
