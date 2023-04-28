@@ -1,6 +1,7 @@
 ﻿using SuperSocket.ProtoBase;
 using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
+using System.Text;
 
 namespace SuperSocket.Db.Abp.Core.Extensions;
 
@@ -15,7 +16,7 @@ public static class SequenceReaderExtension
         if (!result || valueLength == 0) 
             return false;
 
-        value = reader.ReadString(valueLength);
+        value = reader.ReadString(Encoding.UTF8, valueLength);
 
         return true;
     }

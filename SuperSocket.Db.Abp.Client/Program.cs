@@ -13,8 +13,18 @@ await easyClient.SendAsync(new RegisterPackage
     Email = "8400684@qq.com"
 });
 
+var registerResponse = await easyClient.ReceiveAsync();
+
+Console.WriteLine($"注册结果:{registerResponse}");
+
+await easyClient.SendAsync(new LoginPackage
+{
+    Username = "wujun",
+    Password = "passwssssssord",
+});
+
 var loginResponse = await easyClient.ReceiveAsync();
 
-Console.WriteLine($"注册结果:{loginResponse}");
+Console.WriteLine($"登录结果:{loginResponse}");
 
 Console.ReadKey();
