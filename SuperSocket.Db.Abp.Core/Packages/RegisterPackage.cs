@@ -1,18 +1,22 @@
-﻿using SuperSocket.Db.Abp.Core.Extensions;
+﻿using ProtoBuf;
 using System.Buffers;
 
 namespace SuperSocket.Db.Abp.Core;
 
+[ProtoContract]
 public sealed class RegisterPackage : MyPackage
 {
     public RegisterPackage() : base(MyCommand.Register)
     {
     }
 
+    [ProtoMember(1)]
     public string? Username { get; set; }
 
+    [ProtoMember(2)]
     public string? Password { get; set; }
 
+    [ProtoMember(3)]
     public string? Email { get; set; }
 
     public override int Encode(IBufferWriter<byte> writer)
@@ -21,23 +25,14 @@ public sealed class RegisterPackage : MyPackage
         ArgumentException.ThrowIfNullOrEmpty(Password);
         ArgumentException.ThrowIfNullOrEmpty(Email);
 
-        var length = writer.WriteEncoderString(Username);
-        length += writer.WriteEncoderString(Password);
-        length += writer.WriteEncoderString(Email);
+        Serializer.Serialize(writer, this);
 
-        return length;
+        return default;//返回值没啥用处
     }
 
     protected internal override void DecodeBody(ref SequenceReader<byte> reader, object? context)
     {
-        if (reader.TryReadEncoderString(out var username))
-            Username = username;
-
-        if (reader.TryReadEncoderString(out var password))
-            Password = password;
-
-        if (reader.TryReadEncoderString(out var email))
-            Email = email;
+        Serializer.Deserialize(reader.UnreadSequence, this);
     }
 
     public override void Dispose()
@@ -45,28 +40,34 @@ public sealed class RegisterPackage : MyPackage
         Username = default;
         Password = default;
         Email = default;
-        base.Dispose();
     }
 }
 
-public sealed class RegisterRespPackage : MyRespPackage
+[ProtoContract]
+public sealed class RegisterRespPackage : MyPackage
 {
     public RegisterRespPackage() : base(MyCommand.RegisterAck)
     {
     }
 
-    public override int Encode(IBufferWriter<byte> bufWriter)
+    [ProtoMember(1)]
+    public bool SuccessFul { get; set; }
+
+    [ProtoMember(2)]
+    public MyErrorCode ErrorCode { get; set; }
+
+    [ProtoMember(3)]
+    public string? ErrorMessage { get; set; }
+
+    public override int Encode(IBufferWriter<byte> writer)
     {
-        return base.Encode(bufWriter);
+        Serializer.Serialize(writer, this);
+
+        return default;//返回值没啥用处
     }
 
     protected internal override void DecodeBody(ref SequenceReader<byte> reader, object? context)
     {
-        base.DecodeBody(ref reader, context);
-    }
-
-    public override void Dispose()
-    {
-        base.Dispose();
+        Serializer.Deserialize(reader.UnreadSequence, this);
     }
 }
