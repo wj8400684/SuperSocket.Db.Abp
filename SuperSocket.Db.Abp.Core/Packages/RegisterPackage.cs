@@ -29,14 +29,6 @@ public sealed partial class RegisterPackage : MyPackage
 
         return base.Encode(writer);
     }
-
-    public override void Dispose()
-    {
-        Username = default;
-        Password = default;
-        Email = default;
-        base.Dispose();
-    }
 }
 
 [MemoryPackable]
@@ -44,10 +36,5 @@ public sealed partial class RegisterRespPackage : MyRespPackage
 {
     public RegisterRespPackage() : base(MyCommand.RegisterAck)
     {
-    }
-
-    public override void Dispose()
-    {
-        base.Dispose();
     }
 }

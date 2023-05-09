@@ -3,16 +3,16 @@
 namespace SuperSocket.Db.Abp.Server.Commands;
 
 [MyCommand(MyCommand.Register)]
-public sealed class Register : MyAsyncRespCommand<RegisterPackage, RegisterRespPackage>
+public sealed class RegisterCommand : MyAsyncRespCommand<RegisterPackage, RegisterRespPackage>
 {
-    public Register(IPackageFactoryPool packetFactoryPool)
+    public RegisterCommand(IPackageFactoryPool packetFactoryPool)
         : base(packetFactoryPool)
     {
     }
 
     protected override async ValueTask<RegisterRespPackage> ExecuteAsync(MyAppSession session, RegisterPackage package, CancellationToken cancellationToken)
     {
-        var response = CreateResponse();
+        var response = CreateResponse(package.Identifier);
 
         if (string.IsNullOrWhiteSpace(package.Username) || string.IsNullOrWhiteSpace(package.Password))
         {

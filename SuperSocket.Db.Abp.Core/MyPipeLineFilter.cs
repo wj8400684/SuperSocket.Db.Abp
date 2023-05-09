@@ -12,6 +12,13 @@ public sealed class MyPipeLineFilter : FixedHeaderPipelineFilter<MyPackage>
     {
     }
 
+    public override MyPackage Filter(ref SequenceReader<byte> reader)
+    {
+        Decoder ??= new MyPackageDecoder(new MyPackageFactoryPool());
+
+        return base.Filter(ref reader);
+    }
+
     protected override int GetBodyLengthFromHeader(ref ReadOnlySequence<byte> buffer)
     {
         var reader = new SequenceReader<byte>(buffer);

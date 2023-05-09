@@ -2,6 +2,21 @@
 
 namespace SuperSocket.Db.Abp.Server.Commands;
 
+public abstract class MyAsyncCommand<TPackage> : IAsyncCommand<MyAppSession, MyPackage>
+    where TPackage : MyPackage
+{
+    ValueTask IAsyncCommand<MyAppSession, MyPackage>.ExecuteAsync(MyAppSession session, MyPackage package) => SchedulerAsync(session, package, session.ConnectionToken);
+
+    protected virtual async ValueTask SchedulerAsync(MyAppSession session, MyPackage package, CancellationToken cancellationToken)
+    {
+        var request = (TPackage)package;
+
+        await ExecuteAsync(session, request, cancellationToken);
+    }
+
+    protected abstract ValueTask ExecuteAsync(MyAppSession session, TPackage package, CancellationToken cancellationToken);
+}
+
 public abstract class MyAsyncRespCommand<TPackage, TRespPackage> : IAsyncCommand<MyAppSession, MyPackage>
     where TPackage : MyPackage
     where TRespPackage : MyRespPackage, new()
@@ -15,7 +30,13 @@ public abstract class MyAsyncRespCommand<TPackage, TRespPackage> : IAsyncCommand
         _responseFactory = packetFactoryPool.Get<TRespPackage>();
     }
 
-    protected TRespPackage CreateResponse() => (TRespPackage)_responseFactory.Create();
+    protected TRespPackage CreateResponse(ulong identifier)
+    {
+        var resp = (TRespPackage)_responseFactory.Create();
+        resp.Identifier = identifier;
+
+        return resp;
+    }
 
     protected virtual async ValueTask SchedulerAsync(MyAppSession session, MyPackage package, CancellationToken cancellationToken)
     {
@@ -28,23 +49,11 @@ public abstract class MyAsyncRespCommand<TPackage, TRespPackage> : IAsyncCommand
         }
         catch (Exception e)
         {
-            respPackage = CreateResponse();
-            respPackage.SuccessFul = false;
+            respPackage = CreateResponse(package.Identifier);
             respPackage.ErrorMessage = e.Message;
         }
-        finally
-        {
-            request.Dispose();
-        }
 
-        try
-        {
-            await session.SendPackageAsync(respPackage);
-        }
-        finally
-        {
-            respPackage.Dispose();
-        }
+        await session.SendPackageAsync(respPackage);
     }
 
     protected abstract ValueTask<TRespPackage> ExecuteAsync(MyAppSession session, TPackage package, CancellationToken cancellationToken);

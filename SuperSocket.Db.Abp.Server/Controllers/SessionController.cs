@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using SuperSocket.Db.Abp.Server.Model;
 
 namespace SuperSocket.Db.Abp.Server.Controllers;
 
@@ -16,10 +17,18 @@ public sealed class SessionController : ControllerBase
     }
 
     [HttpGet("Count")]
-    public async ValueTask<IActionResult> CountSessionAsync()
+    public async ValueTask<IActionResult> CountAsync()
     {
         var count = await _sessionContainer.GetSessionCountAsync();
 
         return Ok(count);
+    }
+
+    [HttpGet("All")]
+    public async ValueTask<SessionAllModel> AllAsync()
+    {
+        var sessions = await _sessionContainer.GetSessionsAsync<MyAppSession>();
+
+        return new SessionAllModel(sessions.Select(session => new SessionItem(session.SessionID, session.IsLogined)));
     }
 }

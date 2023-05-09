@@ -4,7 +4,7 @@ using System.Buffers;
 
 namespace SuperSocket.Db.Abp.Core;
 
-public abstract class MyPackage : IKeyedPackageInfo<MyCommand>, IDisposable
+public abstract class MyPackage : IKeyedPackageInfo<MyCommand>
 {
     private IPackageFactory? _packetFactory;
 
@@ -19,10 +19,7 @@ public abstract class MyPackage : IKeyedPackageInfo<MyCommand>, IDisposable
     [MemoryPackIgnore]
     public MyCommand Key { get; set; }
 
-    public virtual void Initialization(IPackageFactory factory)
-    {
-        _packetFactory = factory;
-    }
+    public ulong Identifier { get; set; }
 
     public virtual int Encode(IBufferWriter<byte> bufWriter)
     {
@@ -44,11 +41,6 @@ public abstract class MyPackage : IKeyedPackageInfo<MyCommand>, IDisposable
     {
         return System.Text.Json.JsonSerializer.Serialize(this, Type);
     }
-
-    public virtual void Dispose()
-    {
-        _packetFactory?.Return(this);
-    }
 }
 
 public abstract class MyRespPackage : MyPackage
@@ -62,12 +54,5 @@ public abstract class MyRespPackage : MyPackage
     protected MyRespPackage(MyCommand key)
         : base(key)
     {
-    }
-
-    public override void Dispose()
-    {
-        SuccessFul = default;
-        ErrorCode = default;
-        ErrorMessage = default;
     }
 }

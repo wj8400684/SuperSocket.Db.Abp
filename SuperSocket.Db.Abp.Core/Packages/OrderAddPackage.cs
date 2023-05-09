@@ -19,12 +19,6 @@ public sealed partial class OrderAddPackage : MyPackage
 
         return base.Encode(writer);
     }
-
-    public override void Dispose()
-    {
-        Id = default;
-        base.Dispose();
-    }
 }
 
 [MemoryPackable]

@@ -7,4 +7,7 @@ public enum MyCommand : byte
     LoginAck,
     Register,
     RegisterAck,
+    OrderAdd,
+    OrderAddAck,
+    ClientRestart,
 }

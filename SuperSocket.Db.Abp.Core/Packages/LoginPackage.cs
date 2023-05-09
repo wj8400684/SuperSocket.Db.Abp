@@ -26,13 +26,6 @@ public sealed partial class LoginPackage : MyPackage
 
         return base.Encode(writer);
     }
-
-    public override void Dispose()
-    {
-        Username = default; 
-        Password = default;
-        base.Dispose();
-    }
 }
 
 [MemoryPackable]
@@ -40,10 +33,5 @@ public sealed partial class LoginRespPackage : MyRespPackage
 {
     public LoginRespPackage() : base(MyCommand.LoginAck)
     {
-    }
-
-    public override void Dispose()
-    {
-        base.Dispose();
     }
 }
