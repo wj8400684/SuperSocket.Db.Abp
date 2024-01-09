@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="protobuf-net" Version="3.2.16" />
-    <PackageReference Include="SuperSocket.ProtoBase" Version="2.0.0-beta.16.407" />
+    <PackageReference Include="SuperSocket.ProtoBase" Version="2.0.0-beta.18" />
   </ItemGroup>
 
 </Project>

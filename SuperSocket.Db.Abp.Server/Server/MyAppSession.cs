@@ -6,7 +6,7 @@ using System.Net;
 
 namespace SuperSocket.Db.Abp.Server;
 
-public sealed class MyAppSession : AppSession
+public sealed partial class MyAppSession : AppSession
 {
     private CancellationTokenSource? _tokenSource;
     private readonly IPackageEncoder<MyPackage> _encoder;
@@ -40,19 +40,5 @@ public sealed class MyAppSession : AppSession
     internal ValueTask SendPackageAsync(MyPackage package)
     {
         return Channel.IsClosed ? ValueTask.CompletedTask : Channel.SendAsync(_encoder, package);
-    }
-
-    internal async ValueTask ExecuteDbAsync(Func<IUnitOfWork, ValueTask> handler)
-    {
-        await using var scope = Server.ServiceProvider.CreateAsyncScope();
-        using var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-        await handler.Invoke(unitOfWork);
-    }
-
-    internal async ValueTask<TResult> ExecuteDbAsync<TResult>(Func<IUnitOfWork, ValueTask<TResult>> handler)
-    {
-        await using var scope = Server.ServiceProvider.CreateAsyncScope();
-        using var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
-        return await handler.Invoke(unitOfWork);
     }
 }

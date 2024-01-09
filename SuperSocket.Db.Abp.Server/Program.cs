@@ -13,6 +13,7 @@ builder.Host.AsSuperSocketHostBuilder<MyPackage, MyPipeLineFilter>()
             .UseHostedService<MyAppServer>()
             .UseSession<MyAppSession>()
             .UsePackageDecoder<MyPackageDecoder>()
+            .UsePackageEncoder<MyPackageEncoder>()
             .UseCommand(options => options.AddCommandAssembly(typeof(Login).Assembly))
             .UseClearIdleSession()
             .UseInProcSessionContainer()
@@ -20,8 +21,6 @@ builder.Host.AsSuperSocketHostBuilder<MyPackage, MyPipeLineFilter>()
             .ConfigureHostBuilder();
 
 builder.Services.AddSingleton<IPackageFactoryPool, MyPackageFactoryPool>();
-
-builder.Services.AddSingleton<IPackageEncoder<MyPackage>, MyPackageEncoder>();
 
 builder.Services.AddDbContextPool<DbContextFactory>(options => options.UseSqlite("Data Source=supersocket_mq.db;"));
 

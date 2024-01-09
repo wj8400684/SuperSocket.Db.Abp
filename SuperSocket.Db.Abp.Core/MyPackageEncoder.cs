@@ -6,7 +6,7 @@ using SuperSocket.Db.Abp.Core.Extensions;
 namespace SuperSocket.Db.Abp.Core;
 
 /// <summary>
-/// 包编码器
+/// ????????
 /// </summary>
 public sealed class MyPackageEncoder : IPackageEncoder<MyPackage>
 {
@@ -14,26 +14,26 @@ public sealed class MyPackageEncoder : IPackageEncoder<MyPackage>
 
     public int Encode(IBufferWriter<byte> writer, MyPackage pack)
     {
-        #region 获取头部字节缓冲区
+        #region ??????????????
 
         var headSpan = writer.GetSpan(HeaderSize);
         writer.Advance(HeaderSize);
 
         #endregion
 
-        #region 写入 command
+        #region 写?? command
 
         var length = writer.Write((byte)pack.Key);
 
         #endregion
 
-        #region 写入内容
+        #region 写??????
 
         length += pack.Encode(writer);
 
         #endregion
 
-        #region 写入 body 的长度
+        #region 写?? body ?????
 
         BinaryPrimitives.WriteInt16LittleEndian(headSpan, (short)length);
 
